@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>電動大門維修記錄</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      padding: 1.5rem 1rem
+    }
+
+    .form-wrap {
+      max-width: 480px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08)
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 500;
+      color: #111;
+      margin-bottom: 1.5rem
+    }
+
+    .field {
+      margin-bottom: 1.25rem
+    }
+
+    label.field-label {
+      display: block;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 6px
+    }
+
+    select,
+    input[type=text],
+    input[type=date],
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fff;
+      color: #111;
+      appearance: none;
+      -webkit-appearance: none;
+      outline: none
+    }
+
+    select:focus,
+    input:focus,
+    textarea:focus {
+      border-color: #888
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      line-height: 1.6
+    }
+
+    .checkbox-group,
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .check-item,
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      color: #111;
+      cursor: pointer
+    }
+
+    .check-item input,
+    .radio-item input {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      cursor: pointer
+    }
+
+    .status-normal {
+      color: #0F6E56
+    }
+
+    .status-watch {
+      color: #BA7517
+    }
+
+    .status-pending {
+      color: #A32D2D
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      color: #111;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: background 0.15s
+    }
+
+    .btn-submit:hover {
+      background: #f5f5f5
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed
+    }
+
+    .success-box {
+      display: none;
+      background: #f0f9f5;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      margin-top: 1rem
+    }
+
+    .success-icon {
+      font-size: 36px;
+      margin-bottom: 0.75rem;
+      color: #0F6E56
+    }
+
+    .success-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #111;
+      margin-bottom: 0.5rem
+    }
+
+    .success-sub {
+      font-size: 13px;
+      color: #666
+    }
+
+    .btn-reset {
+      margin-top: 1rem;
+      font-size: 14px;
+      color: #666;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #eee;
+      margin: 1.5rem 0
+    }
+
+    .select-wrap {
+      position: relative
+    }
+
+    .select-wrap::after {
+      content: "▾";
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #999;
+      font-size: 12px
+    }
+
+    .error-msg {
+      font-size: 13px;
+      color: #A32D2D;
+      margin-top: 0.75rem;
+      display: none;
+      text-align: center
+    }
+  </style>
+</head>
+
+<body>
+  <div class="form-wrap">
+    <h2>電動大門維修記錄</h2>
+    <div id="form-body">
+      <div class="field">
+        <label class="field-label">區處</label>
+        <div class="select-wrap">
+          <select id="region" onchange="updateUnits()">
+            <option value="">請選擇區處</option>
+            <option>高雄區處</option>
+            <option>鳳山區處</option>
+            <option>南分處</option>
+            <option>南施處</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">所別</label>
+        <div class="select-wrap">
+          <select id="unit">
+            <option value="">請先選擇區處</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">位置</label>
+        <input type="text" id="location" placeholder="例如：大門、倉庫A、營業廳">
+      </div>
+      <hr class="divider">
+      <div class="field">
+        <label class="field-label">故障類別（可複選）</label>
+        <div class="checkbox-group">
+          <label class="check-item"><input type="checkbox" value="機械系統"> 機械系統（馬達、滾輪、傳動裝置、限位開關）</label>
+          <label class="check-item"><input type="checkbox" value="安全防護"> 安全防護裝置（光電感應、防夾裝置）</label>
+          <label class="check-item"><input type="checkbox" value="電氣系統"> 電氣系統（壓扣、電磁、電源或訊號線、控箱、感應線圈）</label>
+          <label class="check-item"><input type="checkbox" value="感應裝置"> 感應裝置（紅外線、雷達、無線壓扣）</label>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">維修日期</label>
+        <input type="date" id="repair-date">
+      </div>
+      <div class="field">
+        <label class="field-label">故障描述</label>
+        <textarea id="fault-desc" placeholder="請詳細描述故障情形"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">處理方式</label>
+        <textarea id="action-taken" placeholder="請描述實際處理方式"></textarea>
+      </div>
+      <hr class="divider">
+      <div class="field">
+        <label class="field-label">維修後狀態</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="status" value="正常"> <span
+              class="status-normal">正常</span></label>
+          <label class="radio-item"><input type="radio" name="status" value="待追蹤"> <span
+              class="status-watch">待追蹤</span></label>
+          <label class="radio-item"><input type="radio" name="status" value="未處理"> <span
+              class="status-pending">未處理</span></label>
+        </div>
+      </div>
+      <button class="btn-submit" id="submit-btn" onclick="submitForm()">送出記錄</button>
+      <div class="error-msg" id="error-msg">送出失敗，請檢查網路後再試一次</div>
+    </div>
+    <div class="success-box" id="success-box">
+      <div class="success-icon">✓</div>
+      <div class="success-title">記錄已儲存至 Google 試算表</div>
+      <div class="success-sub" id="success-detail"></div>
+      <button class="btn-reset" onclick="resetForm()">繼續填寫下一筆</button>
+    </div>
+  </div>
+
+  <script>
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxaqxwSggjUIXlAZ9p_JLfip2fMPAPJ7OXYecyPUYyusA0VQ1tLjjWq9pWIju7piZOI2A/exec';
+    const units = {
+      "高雄區處": ["嘉定變電所", "蚵港變電所", "新興變電所", "左營變電所", "鼓山變電所", "大湖變電所", "梓官變電所", "大岡變電所", "鹽埕變電所", "橋頭服務所", "岡山服務所", "梓官服務所", "湖內服務所", "燕巢服務所", "楠梓服務所", "鼓山服務所", "仁武電竿場", "仁武放置場", "仁武檢修中心", "橋頭施工課", "高雄區處"],
+      "鳳山區處": ["昭明變電所", "潮寮變電所", "源海變電所", "東亞變電所", "築港變電所", "漁港變電所", "桃園服務所", "林園服務所", "小港服務所", "小港倉庫", "九曲服務所", "九曲倉庫", "旗山服務所", "六龜服務所", "仁武服務所", "大寮服務所", "美濃服務所", "內門服務所", "甲仙服務所", "杉林服務所", "鳳山服務所", "協和宿舍", "鳳山區處"],
+      "南分處": ["大林電廠", "二橋倉庫", "南分處"],
+      "南施處": ["南施處"]
+    };
+    function updateUnits() {
+      const r = document.getElementById('region').value;
+      const u = document.getElementById('unit');
+      u.innerHTML = '';
+      if (!r) { u.innerHTML = '<option value="">請先選擇區處</option>'; return; }
+      u.innerHTML = '<option value="">請選擇所別</option>';
+      units[r].forEach(n => { const o = document.createElement('option'); o.textContent = n; u.appendChild(o); });
+    }
+    async function submitForm() {
+      const region = document.getElementById('region').value;
+      const unit = document.getElementById('unit').value;
+      const loc = document.getElementById('location').value.trim();
+      const date = document.getElementById('repair-date').value;
+      const cats = [...document.querySelectorAll('.checkbox-group input:checked')].map(c => c.value);
+      const fault = document.getElementById('fault-desc').value.trim();
+      const action = document.getElementById('action-taken').value.trim();
+      const status = document.querySelector('input[name="status"]:checked');
+      if (!region || !unit || !loc || !date || cats.length === 0 || !fault || !action || !status) {
+        alert('請填寫所有欄位'); return;
+      }
+      const btn = document.getElementById('submit-btn');
+      const errMsg = document.getElementById('error-msg');
+      btn.disabled = true;
+      btn.textContent = '送出中...';
+      errMsg.style.display = 'none';
+      const payload = { region, unit, location: loc, categories: cats.join('、'), repairDate: date, faultDesc: fault, actionTaken: action, status: status.value };
+      try {
+        await fetch(SHEET_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        document.getElementById('form-body').style.display = 'none';
+        document.getElementById('success-box').style.display = 'block';
+        document.getElementById('success-detail').textContent = unit + ' · ' + loc + ' · ' + date;
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = '送出記錄';
+        errMsg.style.display = 'block';
+      }
+    }
+    function resetForm() {
+      document.getElementById('region').value = '';
+      updateUnits();
+      document.getElementById('location').value = '';
+      document.querySelectorAll('.checkbox-group input').forEach(c => c.checked = false);
+      document.getElementById('fault-desc').value = '';
+      document.getElementById('action-taken').value = '';
+      document.querySelectorAll('input[name="status"]').forEach(r => r.checked = false);
+      document.getElementById('form-body').style.display = 'block';
+      document.getElementById('success-box').style.display = 'none';
+      document.getElementById('submit-btn').disabled = false;
+      document.getElementById('submit-btn').textContent = '送出記錄';
+      document.getElementById('repair-date').value = new Date().toISOString().split('T')[0];
+    }
+    document.getElementById('repair-date').value = new Date().toISOString().split('T')[0];
+  </script>
+</body>
+
+</html>
